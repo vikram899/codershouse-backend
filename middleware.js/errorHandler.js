@@ -1,6 +1,6 @@
 const { DEBUG_MODE } = require("../config");
 const { ValidationError } = require("joi");
-const CustomErrorHandler = require("../services/customErrorHandler");
+const {CustomErrorHandler} = require("../services");
 
 const errorHandler = (err, req, res, next) => {
     

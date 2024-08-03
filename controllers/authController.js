@@ -1,6 +1,12 @@
 const Joi = require("joi");
-const { OTPService, HashService } = require("../services");
-const CustomErrorHandler = require("../services/customErrorHandler");
+const {
+  OTPService,
+  HashService,
+  UserService,
+  TokenService,
+  CustomErrorHandler,
+} = require("../services");
+const { OTP_EXPIRY } = require("../config");
 
 class AuthController {
   async sendOTP(req, res, next) {
@@ -19,16 +25,17 @@ class AuthController {
 
     const generatedOTP = await OTPService.generateOTP();
 
-    const ttl = 1000 * 60 * 2;
+    const ttl = 1000 * 60 * parseInt(OTP_EXPIRY);
+
     const expiresAt = Date.now() + ttl;
     const data = `${phone}.${generatedOTP}.${expiresAt}`;
     const hashedData = await HashService.generateHash(data);
 
     try {
       await OTPService.sendSMS(phone, generatedOTP);
-      res.json({ 
-        phone, 
-        hash: `${hashedData}.${expiresAt}` 
+      res.json({
+        phone,
+        hash: `${hashedData}.${expiresAt}`,
       });
     } catch (error) {
       return next(error);
@@ -38,6 +45,7 @@ class AuthController {
   async vefiyOTP(req, res, next) {
     const { phone, hash, otp } = req.body;
 
+    //Validation of req body
     const verifySchema = Joi.object({
       phone: Joi.string()
         .pattern(/(^[0-9]+$)|(^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$)/)
@@ -51,6 +59,7 @@ class AuthController {
       return next(error);
     }
 
+    //OTP verification logic
     const [hashedData, expiresAt] = hash.split(".");
     if (Date.now() > parseInt(expiresAt)) {
       return next(CustomErrorHandler.invalidOTP("OTP expired"));
@@ -60,10 +69,33 @@ class AuthController {
     const isValid = await HashService.compareHash(data, hashedData);
 
     if (!isValid) {
-      return next(CustomErrorHandler.invalidOTP());      
+      return next(CustomErrorHandler.invalidOTP());
     }
 
-    res.json({ message: "OTP verified successfully" });
+    let user;
+    //Check if user exists or not and create if not
+    try {
+      user = await UserService.getUser({ phone });
+      if (!user) {
+        user = await UserService.createUser({ phone });
+      }
+    } catch (err) {
+      return next(CustomErrorHandler.serverError("DB Error"));
+    }
+
+    //Generate JWT token
+    const { _id, activated } = user;
+    const { accessToken, refreshToken } = await TokenService.generateToken({
+      _id,
+      activated,
+    });
+
+    res.cookie("refreshT  oken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+
+    res.json({ accessToken });
   }
 }
 

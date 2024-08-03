@@ -1,5 +1,11 @@
 const express = require("express");
 const errorHandler = require("./middleware.js/errorHandler");
+const DBCONNECT = require("./database");
+
+
+
+const PORT = process.env.PORT;
+DBCONNECT();
 
 const router = require("./routes");
 
@@ -9,7 +15,6 @@ app.use(express.json());
 app.use("/api", router);
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
