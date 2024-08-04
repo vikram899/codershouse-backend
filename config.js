@@ -10,6 +10,8 @@ const {
   JWT_ACCESS_KEY,
   JWT_REFRESH_KEY,
   OTP_EXPIRY,
+  FRONTEND_URL,
+  BASE_URL
 } = process.env;
 
 module.exports = {
@@ -23,4 +25,6 @@ module.exports = {
   JWT_ACCESS_KEY,
   JWT_REFRESH_KEY,
   OTP_EXPIRY,
+  FRONTEND_URL,
+  BASE_URL
 };

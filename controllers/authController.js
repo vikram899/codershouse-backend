@@ -7,6 +7,7 @@ const {
   CustomErrorHandler,
 } = require("../services");
 const { OTP_EXPIRY } = require("../config");
+const userDTO = require("../dtos/userDTO");
 
 class AuthController {
   async sendOTP(req, res, next) {
@@ -90,12 +91,24 @@ class AuthController {
       activated,
     });
 
-    res.cookie("refreshT  oken", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
     });
 
-    res.json({ accessToken });
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+
+    try {
+      await TokenService.storeRefreshToken(_id, refreshToken);
+    } catch (err) {
+      return next(CustomErrorHandler.serverError());
+    }
+
+    const newUser = new userDTO(user);
+    res.json({ user: newUser, isAuth: true });
   }
 }
 

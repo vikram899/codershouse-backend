@@ -8,6 +8,10 @@ class CustomErrorHandler {
     return new CustomErrorHandler(409, message);
   }
 
+  static badRequest(message = "Bad Request") {
+    return new CustomErrorHandler(400, message);
+  }
+
   static invalidOTP(message = "Invalid OTP") {
     return new CustomErrorHandler(400, message);
   }

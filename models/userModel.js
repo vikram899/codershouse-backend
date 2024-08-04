@@ -11,6 +11,16 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    name: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    avatar: {
+      type: String,
+      required: false,
+      default: "",
+    },
   },
   { timestamps: true }
 );
