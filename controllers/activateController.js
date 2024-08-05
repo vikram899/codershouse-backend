@@ -6,7 +6,7 @@ const path = require("path");
 class ActivateController {
   async activate(req, res, next) {
     const { name, avatar } = req.body;
-
+    
     if (!name || !avatar) {
       return next(
         CustomErrorHandler.badRequest("Please provide name and avatar")
@@ -14,7 +14,7 @@ class ActivateController {
     }
 
     const buffer = Buffer.from(
-      avatar.replace(/^data:image\/png;base64,/, ""),
+      avatar.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),
       "base64"
     );
     const imagePath = `${Date.now()}-${Math.round(Math.random() * 1e9)}.png`;
