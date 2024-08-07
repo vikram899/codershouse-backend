@@ -3,6 +3,7 @@ const HashService = require("./hashService");
 const UserService = require("./userService");
 const TokenService = require("./tokenService");
 const CustomErrorHandler = require("./customErrorHandler");
+const RoomService = require("./roomService");
 
 module.exports = {
   OTPService,
@@ -10,4 +11,5 @@ module.exports = {
   UserService,
   TokenService,
   CustomErrorHandler,
+  RoomService,
 };
